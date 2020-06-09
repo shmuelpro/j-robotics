@@ -1,0 +1,61 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, intial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>j-robotics</title>
+    <link rel="stylesheet" href="normalize.css" />
+
+</head>
+
+<body class="bg-gray-100">
+
+    <div style="display: flex;height:100vh">
+        <div id="box1" style="flex:1">
+
+        </div>
+        <div id="box2" style="flex:1">
+
+        </div>
+        <div id="box3" style="flex:1">
+
+        </div>
+        <div id="box4" style="flex:1">
+
+        </div>
+        <div id="box5" style="flex:1">
+
+        </div>
+    </div>
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io('http://localhost:3500');
+
+    function changeColor(json, name) {
+        const val = json[name] / 32
+        const element = document.getElementById(name)
+        element.style.background = `rgb(${val * 8},${val * 8},${val * 8})`;
+    }
+
+    socket.on('data', (data) => {
+        console.log(data)
+        try {
+            const arduino_val = JSON.parse(data);
+
+            changeColor(arduino_val, "box1")
+            changeColor(arduino_val, "box2")
+            changeColor(arduino_val, "box3")
+            changeColor(arduino_val, "box4")
+            changeColor(arduino_val, "box5")
+        }
+        catch (err) {
+            console.log(err)
+        }
+
+    });
+</script>
+
+</html>
