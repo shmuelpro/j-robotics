@@ -1,7 +1,7 @@
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 const { exec } = require("child_process");
-
+const open = require('open')
 const express = require('express')
 const app = express();
 const server = require('http').createServer(app);
@@ -29,7 +29,18 @@ function sendData(socket) {
     })
 
 }
+function connectToPort(port, socket) {
+    
+    if(statusCode === 0){
+        sPort = new SerialPort(port, { baudRate: 9600 })
+        connectedPort = port;
+        statusCode = 1;
+        socket.emit("connected", connectedPort)
+        sendData(socket)
 
+    }
+   
+}
 
 
 io.on('connection', (socket) => {
@@ -48,7 +59,11 @@ io.on('connection', (socket) => {
             console.log(`stderr: ${stderr}`);
             return;
         }
-
+        let ports = JSON.parse(stdout);
+        if (ports .length > 0) {
+           
+            connectToPort(ports[0].path, socket)
+        }
         socket.emit('ports', stdout)
         // console.log(`Listing Serial Ports: ${stdout}`);
     });
@@ -56,11 +71,11 @@ io.on('connection', (socket) => {
 
 
     socket.on('connectPort', (data) => {
-        sPort = new SerialPort(data, { baudRate: 9600 })
-        connectedPort = data;
-        statusCode = 1;
-        socket.emit("connected", connectedPort)
-        sendData(socket)
+        console.log(
+            "connecting to port"
+
+        )
+        connectToPort(data, socket)
     });
 
 
@@ -68,4 +83,5 @@ io.on('connection', (socket) => {
 
 
 server.listen(3500);
+open("http://localhost:3500")
 
